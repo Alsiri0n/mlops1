@@ -38,17 +38,33 @@ def create_data(size:int, cols:str, col_names = None, intervals = None, seed = N
     return df
 
 
-def solver(df)->pd.DataFrame:
+def _optimizer(df:pd.DataFrame)->pd.DataFrame:
+    """
+    Change int64 to unsigned and change type to minimal int64 to uint8 and to uint32 for timestamp
+    """
+    df_int = df.select_dtypes(include=['int'])
+    converted_int = df_int.apply(pd.to_numeric,downcast='unsigned')
+
+    optimized_df = df.copy()
+    optimized_df[converted_int.columns] = converted_int
+
+    return optimized_df
+
+def solver(df:pd.DataFrame, timeout:int)->pd.DataFrame:
+    #Some optimized for data
+    df = _optimizer(df)
+
     # Sorting at customer_id, then timestamp
     df = df.sort_values(['customer_id', 'timestamp'], ascending=[True, True])
     df = df.reset_index(drop=True)
+
     #Set session columna default value
     df['session'] = 1
     for i in range(1, len(df)):
         #Check matching customer_id
         if (df.loc[i, 'customer_id'] == df.loc[i - 1, 'customer_id']):
             #Check diff timestamp
-            if (df.loc[i, 'timestamp'] - df.loc[i - 1, 'timestamp'] >= 180):
+            if (df.loc[i, 'timestamp'] - df.loc[i - 1, 'timestamp'] >= timeout):
                 df.loc[i:, 'session'] = df.loc[i, 'session'] + 1
         else:
             df.loc[i:, 'session'] = 1
@@ -61,5 +77,5 @@ def solver(df)->pd.DataFrame:
 if __name__ == '__main__':
     df = create_data(size = 30, cols =  "iit", col_names=['customer_id', 'product_id', 'timestamp'],
                 intervals = [(1,5), (1, 10), None], seed=10)
-    df = solver(df)
+    df = solver(df, 180)
     print(df.head(30))

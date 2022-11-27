@@ -22,7 +22,7 @@ class TestMLOPS(unittest.TestCase):
             ]
         }
         df = pd.DataFrame(test_data)
-        df = solver(df)
+        df = solver(df, 180)
 
         self.assertEqual(df.loc[0,'customer_id'], 1)
         self.assertEqual(df.loc[0,'product_id'], 1)
@@ -47,7 +47,7 @@ class TestMLOPS(unittest.TestCase):
             ]
         }
         df = pd.DataFrame(test_data)
-        df = solver(df)
+        df = solver(df, 180)
 
         self.assertEqual(df.loc[0,'session'], 1)
         self.assertEqual(df.loc[1,'session'], 2)
@@ -67,7 +67,7 @@ class TestMLOPS(unittest.TestCase):
             ]
         }
         df = pd.DataFrame(test_data)
-        df = solver(df)
+        df = solver(df, 180)
 
         self.assertEqual(df.loc[0,'session'], 1)
         self.assertEqual(df.loc[1,'session'], 1)
@@ -90,8 +90,8 @@ class TestMLOPS(unittest.TestCase):
             ]
         }
         df = pd.DataFrame(test_data)
-        df = solver(df)
-        print(df)
+        df = solver(df, 180)
+
         self.assertEqual(df.loc[0,'customer_id'], 1)
         self.assertEqual(df.loc[0,'session'], 1)
         self.assertEqual(df.loc[1,'customer_id'], 2)
